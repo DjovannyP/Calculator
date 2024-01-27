@@ -1,0 +1,10 @@
+body{
+    background-color: rgb(27, 27, 27);
+    
+}
+.container{
+    width: 400px;
+    height: 520px;
+    background-color: aliceblue;
+    margin: 0 auto;
+}
