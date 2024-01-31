@@ -1,8 +1,6 @@
 
 //all numbers(0 to 9), equal, dot and the clear button include
 const numbers = document.querySelectorAll('.number');
-
-
 //Operators: "+", "-", "*", "/"
 const operators = document.querySelectorAll('.operator')
 //display
@@ -13,45 +11,63 @@ const currentDisplay = document.querySelector('.current');
 let previousValue = '';
 let currentValue = '' 
 let operator = ''
+let result = ''
 
-//grab numbers and others elements like "=", "clear"
+
+//numbers, "=", "clear"
 for (let number of numbers) {
-    const value = number.value;
-    number.addEventListener('click', () => {
-        switch (value) {
-            case 'clear':
-                clear();
-                break;
-            case '.':
-                addDecimal();
-                break;
-            case '=':
-               const result = operate(operator, previousValue, currentValue);
-                currentDisplay.innerHTML = roundNumber(result);
-                break;
-            default:
-                if (currentValue.length < 5) {
-                    currentValue += value;
-                currentDisplay.innerHTML += value;
-                }
+        const value = number.value;
+        number.addEventListener('click', () => {
+                switch (value) {
+                    case 'clear':
+                        clear();
+                        break;
+                    case '.':
+                        addDecimal();
+                        break;
+                    case 'del':
+                        del();
+                        break;
+                    case '=':
+                        if (previousValue !== '' && currentValue !== '') {
+                            result = operate(operator, previousValue, currentValue);
+                            currentDisplay.innerHTML = roundNumber(result).toString();
+                            previousDisplay.innerHTML = `${previousValue} ${operator} ${currentValue} =`;
+                            previousValue = '';
+                            currentValue = roundNumber(result).toString();
+                        }
+                        break;
+                    default:
+                        if (currentValue.length < 5 && previousValue.length <= 5) {
+                            currentValue += value;
+                            currentDisplay.innerHTML += value;
+                        }
                 
-        }
-    })
+                }
+        })
+    
 }
 
-//grab operators
-
+//operators
 for (let element of operators) {
     const symbol = element.value;
     element.addEventListener('click', () => {
-        operator = symbol;
-        previousValue += currentValue;
-        currentValue = '';
-        previousDisplay.innerHTML = `${previousValue} ${symbol}`;
-        currentDisplay.innerHTML = currentValue;
-    })
+        if (currentValue !== '') {
+            if (previousValue !== '' && operator !== '') {
+                // If an operator is already present, perform the calculation first
+                result = operate(operator, previousValue, currentValue);
+                previousValue = roundNumber(result).toString();
+                previousDisplay.innerHTML = `${previousValue} ${symbol}`;
+            } else {
+                previousValue = currentValue;
+                previousDisplay.innerHTML = `${previousValue} ${symbol}`;
+            }
+            operator = symbol;
+            currentValue = '';
+            currentDisplay.innerHTML = currentValue;
+        }
+    });
 }
-
 
 function add(a, b) {
     return a + b;
@@ -64,15 +80,12 @@ function multiply(a, b) {
     return a * b;
 }
 function divide(a, b) {
-
-    return a / b; 
+ return a / b;              
 }
 
 function operate(operator,  previousValue,  currentValue) {
-
     previousValue = Number(previousValue);
     currentValue = Number(currentValue);
-
     switch (operator) {
         case '+':
             return add(previousValue,  currentValue);
@@ -87,19 +100,19 @@ function operate(operator,  previousValue,  currentValue) {
     }
 }
 
-
 const roundNumber = number => Math.round(number * 1000) / 1000;
 
-//clear everything
+//clear
 const clear = () => {
     currentValue = '';
     previousValue = '';
     operator = '';
+     result = '';
     previousDisplay.innerHTML = '';
     currentDisplay.innerHTML = '';
 }
  
-//decimal function
+//decimal
 const addDecimal = () => {
     if (!currentValue.includes(".")) {
         if (currentValue === '' || currentValue === '0' || operator !== '') {
@@ -107,6 +120,13 @@ const addDecimal = () => {
         } else {
             currentValue += '.';
         }
+        currentDisplay.innerHTML = currentValue;
+    }
+}
+//delete
+const del = () => {
+    if (currentValue.length > 0) {
+        currentValue = currentValue.slice(0, -1);
         currentDisplay.innerHTML = currentValue;
     }
 }
